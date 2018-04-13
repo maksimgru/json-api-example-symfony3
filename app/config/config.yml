@@ -71,13 +71,10 @@ eight_points_guzzle:
     logging: true
     clients:
         api_soccerway:
-            base_url: "http://registry.npmjs.org"
+            base_url: "https://jsonplaceholder.typicode.com"
             # guzzle client options (full description here: https://guzzle.readthedocs.org/en/latest/request-options.html)
             # NOTE: "headers" option is not accepted here as it is provided as described above.
             options:
-                #auth:
-                    #- acme     # login
-                    #- pa55w0rd # password
                 #headers:
                     #Accept: "application/json"
                 # Find proper php const, for example CURLOPT_SSLVERSION, remove CURLOPT_ and transform to lower case.

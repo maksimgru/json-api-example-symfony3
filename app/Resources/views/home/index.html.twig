@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div id="wrapper">
+        <div id="container">
+            <div id="welcome">
+                <h1><span>Welcome to</span> Symfony {{ constant('Symfony\\Component\\HttpKernel\\Kernel::VERSION') }}</h1>
+            </div>
+
+            <div id="status">
+                {% for user in users %}
+                    <span>{{ user['name'] }}</span>
+                    <ul>
+                        <li>ID = {{ user['id'] }}</li>
+                        <li>username = {{ user['username'] }}</li>
+                        <li>email = {{ user['email'] }}</li>
+                        <li>phone = {{ user['phone'] }}</li>
+                        <li>website = {{ user['website'] }}</li>
+                    </ul>
+                    <hr>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
