@@ -33,34 +33,40 @@ class SoccerWayApi
     /**
      * @return array
      */
-    public function getMatches(): array
+    public function getCompetitions(): array
     {
-        $matchesData = $this->httpClient->get('/matches');
+        $competitions = [];
+        $competitionsData = $this->httpClient->get('/competitions');
 
-        return [
-            'home_team'  => $matchesData['home_team'],
-            'away_team'  => $matchesData['away_team'],
-            'start_date' => $matchesData['start_date'],
-        ];
+        foreach ($competitionsData as $competition) {
+            $competitions[] = [
+                'home_team'  => $competition['home_team'],
+                'away_team'  => $competition['away_team'],
+                'score'      => $competition['score'],
+                'start_at'   => $competition['start_at'],
+            ];
+        }
+
+        return $competitions;
     }
 
     /**
-     * @param string $team
+     * @param string $teamName
      *
      * @return array
      */
-    public function getTeam(string $team): array
+    public function getTeam(string $teamName): array
     {
-        $teamData = $this->httpClient->get('/teams/' . $team);
+        $teamData = $this->httpClient->get('/teams/' . $teamName);
 
         return [
             'place'  => $teamData['home_team'],
             'team'   => $teamData['away_team'],
-            'played' => $teamData['start_date'],
-            'wins'   => $teamData['start_date'],
-            'draws'  => $teamData['start_date'],
-            'losses' => $teamData['start_date'],
-            'points' => $teamData['start_date'],
+            'played' => $teamData['played'],
+            'wins'   => $teamData['wins'],
+            'draws'  => $teamData['draws'],
+            'losses' => $teamData['losses'],
+            'points' => $teamData['points'],
         ];
     }
 }
