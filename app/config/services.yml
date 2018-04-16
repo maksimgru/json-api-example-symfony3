@@ -33,6 +33,11 @@ services:
         arguments:
             $client: '@eight_points_guzzle.client.api_soccerway'
 
+    AppBundle\Service\SoccerWayService:
+        arguments:
+            $httpClient: '@AppBundle\Service\GuzzleHttpClient'
+            $crawler: '@AppBundle\Service\DomCrawlerService'
+
     # add more services, or override services that need manual wiring
     # AppBundle\Service\ExampleService:
     #     arguments:

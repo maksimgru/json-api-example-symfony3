@@ -29,11 +29,30 @@ class GuzzleHttpClient implements HttpClientInterface
      *
      * @throws \RuntimeException
      */
-    public function get(string $url): array
+    public function get(string $url, array $options): array
     {
-        $response = $this->client->get($url);
+        $defaultOptions = [
+            'type' => 'json',
+        ];
+        $options = array_merge($defaultOptions, $options);
 
-        return json_decode($response->getBody()->getContents(), true);
+        $response = $this->client->get($url);
+        $content = $response->getBody()->getContents();
+
+        switch ($options['type']) {
+            case 'json':
+                $content = json_decode($content, true);
+                break;
+            case 'html':
+            case 'plain':
+            default:
+                break;
+        }
+
+        return [
+            'content' => $content,
+            'type'    => $options['type']
+        ];
     }
 
     /**

@@ -11,10 +11,11 @@ interface HttpClientInterface
 {
     /**
      * @param string $url
+     * @param array $options
      *
      * @return array
      */
-    public function get(string $url): array;
+    public function get(string $url, array $options): array;
 
     /**
      * @param string $url

@@ -71,7 +71,7 @@ eight_points_guzzle:
     logging: true
     clients:
         api_soccerway:
-            base_url: "https://jsonplaceholder.typicode.com"
+            base_url: "https://int.soccerway.com"
             # guzzle client options (full description here: https://guzzle.readthedocs.org/en/latest/request-options.html)
             # NOTE: "headers" option is not accepted here as it is provided as described above.
             options:
@@ -81,6 +81,6 @@ eight_points_guzzle:
                 # List of curl options: http://php.net/manual/en/function.curl-setopt.php
                 curl:
                     sslversion: 1 # or !php/const:CURL_HTTP_VERSION_1_0 for symfony >= 3.2
-                timeout: 30
+                timeout: 300
             # plugin settings
             plugin: ~
