@@ -40,7 +40,7 @@ class Competition
     private $awayTeam;
 
     /**
-     * @ORM\Column(name="start_at", type="datetime", nullable=true)
+     * @ORM\Column(name="start_at", type="date", nullable=true)
      */
     private $startAt;
 
