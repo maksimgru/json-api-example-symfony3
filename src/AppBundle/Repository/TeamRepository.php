@@ -12,4 +12,49 @@ use \Doctrine\ORM\EntityRepository;
  */
 class TeamRepository extends EntityRepository
 {
+    /**
+     * @param array $options
+     *
+     * @return mixed
+     */
+    public function findByCompetitionsDate(array $options = [])
+    {
+        $defaultOptions = [
+            'from'  => null,
+            'to'    => null,
+            'order' => 'DESC',
+            'limit' => null,
+            'assoc' => false,
+        ];
+        $options = array_merge($defaultOptions, $options);
+
+        $competitions = $this->getEntityManager()
+            ->getRepository('AppBundle:Competition')
+            ->findAllOrderedByDate($options);
+
+        $teamsIds = [];
+        $results = [];
+
+        // Extract Teams data into separate collection
+        foreach ((array)$competitions as $competition) {
+            if (!array_key_exists($competition['homeTeam']['id'], $teamsIds)) {
+                $teamsIds[] = $competition['homeTeam']['id'];
+                unset($competition['homeTeam']['id']);
+                $results[] = $competition['homeTeam'];
+            }
+
+            if (!array_key_exists($competition['awayTeam']['id'], $teamsIds)) {
+                $teamsIds[] = $competition['awayTeam']['id'];
+                unset($competition['awayTeam']['id']);
+                $results[] = $competition['awayTeam'];
+            }
+        }
+
+        // Ascending sort of Teams collection by "place" property
+        usort($results, function ($team1, $team2) {
+            return $team1['place'] <=> $team2['place'];
+        });
+
+        return $results;
+    }
 }

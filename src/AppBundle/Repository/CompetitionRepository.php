@@ -20,22 +20,39 @@ class CompetitionRepository extends EntityRepository
     public function findAllOrderedByDate(array $options = [])
     {
         $defaultOptions = [
+            'from'  => null,
+            'to'    => null,
             'order' => 'DESC',
             'limit' => null,
             'assoc' => false,
         ];
         $options = array_merge($defaultOptions, $options);
 
+        $whereDateIntervalClause = [];
+
+        if (null !== $options['from']) {
+            $whereDateIntervalClause[] = "c.startAt >= '{$options['from']}'";
+        }
+
+        if (null !== $options['to']) {
+            $whereDateIntervalClause[] = "c.startAt <= '{$options['to']}'";
+        }
+
+        $whereDateIntervalClause = implode(' AND ', $whereDateIntervalClause);
+        $whereDateIntervalClause = ('' === $whereDateIntervalClause) ? $whereDateIntervalClause : ' AND ' . $whereDateIntervalClause ;
+
         $dql = "SELECT c, htm, atm FROM AppBundle:Competition c
             LEFT JOIN c.homeTeam htm
             LEFT JOIN c.awayTeam atm
-            WHERE c.homeTeam = htm.id OR c.awayTeam = atm.id
+            WHERE (c.homeTeam = htm.id OR c.awayTeam = atm.id)
+            $whereDateIntervalClause
             ORDER BY c.startAt {$options['order']}";
 
         $builder = $this->getEntityManager()
             ->createQuery($dql)
             ->setMaxResults($options['limit']);
 
+        // Return results as assoc array or as array of objects
         if ($options['assoc']) {
             $result = $builder->getArrayResult();
         } else {
