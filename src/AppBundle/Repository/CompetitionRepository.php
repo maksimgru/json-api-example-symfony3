@@ -38,4 +38,25 @@ class CompetitionRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param string $keyword
+     *
+     * @return mixed
+     */
+    public function findByTeamNameKeyword(string $keyword)
+    {
+        $dql = 'SELECT c, htm, atm FROM AppBundle:Competition c
+            LEFT JOIN c.homeTeam htm
+            LEFT JOIN c.awayTeam atm
+            WHERE (c.homeTeam = htm.id OR c.awayTeam = atm.id) AND (htm.name LIKE :keyword OR atm.name LIKE :keyword)
+            ORDER BY c.startAt DESC';
+
+        $result = $this->getEntityManager()
+            ->createQuery($dql)
+            ->setParameter('keyword', '%' . $keyword . '%')
+            ->getResult();
+
+        return $result;
+    }
 }

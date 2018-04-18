@@ -3,21 +3,43 @@
 {% block body %}
     <div id="wrapper">
         <div id="container">
+
             <div id="welcome">
                 <h1><span>Welcome to</span> Symfony {{ constant('Symfony\\Component\\HttpKernel\\Kernel::VERSION') }}</h1>
-                <h2>Competitions sorted by date</h2>
+                <h2>Matches sorted by date</h2>
             </div>
 
             <div id="status">
-                {% for competition in competitions %}
-                    <span>{{ competition.startAt | date('Y-m-d') }}</span>
-                    <ul>
-                        <li>home team = {{ competition.homeTeam.name }}</li>
-                        <li>score = {{ competition.score }}</li>
-                        <li>away team = {{ competition.awayTeam.name }}</li>
-                    </ul>
-                    <hr>
-                {% endfor %}
+                <form id="search" class="form-inline" name="search" action="{{ path('search-submit') }}" method="post">
+                    <input type="text" class="form-control" name="keyword"
+                           {% if searchForm is defined %}
+                               value="{{ searchForm.get('keyword').viewData() }}"
+                           {% endif %}
+                           placeholder="Search by team name ..."
+                    >
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Home Team</th>
+                            <th>Score</th>
+                            <th>Away Team</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for competition in competitions %}
+                            <tr>
+                                <td>{{ competition.startAt | date('Y-m-d') }}</td>
+                                <td>{{ competition.homeTeam.name }}</td>
+                                <td>{{ competition.score }}</td>
+                                <td>{{ competition.awayTeam.name }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
 
         </div>
