@@ -3,7 +3,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Competition;
-use AppBundle\Form\SearchType;
+use AppBundle\Form\Type\SearchType ;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -22,7 +22,9 @@ class HomeController extends Controller
      */
     public function indexAction(EntityManagerInterface $em): Response
     {
-        $competitions = $em->getRepository(Competition::class)->findAllOrderedByDate();
+        $competitions = $em
+            ->getRepository(Competition::class)
+            ->findAllOrderedByDate();
 
         return $this->render('home/index.html.twig', [
             'competitions' => $competitions,
@@ -45,13 +47,15 @@ class HomeController extends Controller
 
         if (!$form->isSubmitted() || !$form->isValid()) {
             $this->addFlash('warning', 'Please, provide min 2 characters!!!');
+
             return $this->redirectToRoute('home');
         }
 
         $keyword = $form->get('keyword')->getData();
 
-        $filteredCompetitions = $em->getRepository(Competition::class)->findByTeamNameKeyword($keyword);
-        //$filteredCompetitions = $em->getRepository(Competition::class)->findAllOrderedByDate(['limit'=>3]);
+        $filteredCompetitions = $em
+            ->getRepository(Competition::class)
+            ->findByTeamNameKeyword($keyword);
 
         $this->addFlash('success', 'Filtered Matches by Team name with "' . $keyword . '"');
 

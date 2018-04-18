@@ -22,6 +22,7 @@ class CompetitionRepository extends EntityRepository
         $defaultOptions = [
             'order' => 'DESC',
             'limit' => null,
+            'assoc' => false,
         ];
         $options = array_merge($defaultOptions, $options);
 
@@ -31,10 +32,15 @@ class CompetitionRepository extends EntityRepository
             WHERE c.homeTeam = htm.id OR c.awayTeam = atm.id
             ORDER BY c.startAt {$options['order']}";
 
-        $result = $this->getEntityManager()
+        $builder = $this->getEntityManager()
             ->createQuery($dql)
-            ->setMaxResults($options['limit'])
-            ->getResult();
+            ->setMaxResults($options['limit']);
+
+        if ($options['assoc']) {
+            $result = $builder->getArrayResult();
+        } else {
+            $result = $builder->getResult();
+        }
 
         return $result;
     }
