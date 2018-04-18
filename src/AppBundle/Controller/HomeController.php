@@ -14,55 +14,54 @@ use Symfony\Component\HttpFoundation\Response;
 class HomeController extends Controller
 {
     /**
-     * @Route("/", name="home")
-     *
-     * @param EntityManagerInterface $em
-     *
-     * @return Response
-     */
-    public function indexAction(EntityManagerInterface $em): Response
-    {
-        $competitions = $em
-            ->getRepository(Competition::class)
-            ->findAllOrderedByDate();
-
-        return $this->render('home/index.html.twig', [
-            'competitions' => $competitions,
-        ]);
-    }
-
-    /**
-     * @Route("/search-submit", name="search-submit", methods={"POST"})
+     * @Route("/", name="home", methods={"GET", "POST"})
      *
      * @param Request $request
      * @param EntityManagerInterface $em
      *
      * @return Response
      */
-    public function searchAction(Request $request, EntityManagerInterface $em): Response
+    public function indexAction(Request $request, EntityManagerInterface $em): Response
     {
         $form = $this->createSearchForm();
+        $competitionRepo = $em->getRepository(Competition::class);
 
+        if ($this->handleSearchForm($request, $form)) {
+            $keyword = $form->get('keyword')->getData();
+            $competitions = $competitionRepo->findByTeamNameKeyword($keyword);
+        } else {
+            $competitions = $competitionRepo->findAllOrderedByDate();
+        }
+
+        return $this->render('home/index.html.twig', [
+            'competitions' => $competitions,
+            'searchForm'   => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @param FormInterface $form
+     *
+     * @return bool
+     */
+    private function handleSearchForm(Request $request, FormInterface $form): bool
+    {
         $form->handleRequest($request);
 
         if (!$form->isSubmitted() || !$form->isValid()) {
-            $this->addFlash('warning', 'Please, provide min 2 characters!!!');
+            if ($request->isMethod('POST')) {
+                $this->addFlash('warning', 'Please, provide min 2 characters!!!');
+            }
 
-            return $this->redirectToRoute('home');
+            return false;
         }
 
         $keyword = $form->get('keyword')->getData();
 
-        $filteredCompetitions = $em
-            ->getRepository(Competition::class)
-            ->findByTeamNameKeyword($keyword);
-
         $this->addFlash('success', 'Filtered Matches by Team name with "' . $keyword . '"');
 
-        return $this->render('home/index.html.twig', [
-            'competitions' => $filteredCompetitions,
-            'searchForm'   => $form
-        ]);
+        return true;
     }
 
     /**
@@ -70,6 +69,6 @@ class HomeController extends Controller
      */
     private function createSearchForm(): FormInterface
     {
-        return $this->createForm(SearchType::class);
+        return $this->createForm(SearchType::class, null, ['method' => 'POST']);
     }
 }

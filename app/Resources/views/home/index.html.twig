@@ -10,10 +10,10 @@
             </div>
 
             <div id="status">
-                <form id="search" class="form-inline" name="search" action="{{ path('search-submit') }}" method="post">
+                <form id="search" class="form-inline" name="search" action="{{ path('home') }}" method="post">
                     <input type="text" class="form-control" name="keyword"
                            {% if searchForm is defined %}
-                               value="{{ searchForm.get('keyword').viewData() }}"
+                               value="{{ searchForm.keyword.vars.value }}"
                            {% endif %}
                            placeholder="Search by team name ..."
                     >
