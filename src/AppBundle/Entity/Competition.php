@@ -28,13 +28,13 @@ class Competition
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Team", inversedBy="competitions")
+     * @ORM\ManyToOne(targetEntity="Team")
      * @ORM\JoinColumn(name="home_team_id", referencedColumnName="id", nullable=false)
      */
     private $homeTeam;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Team", inversedBy="competitions")
+     * @ORM\ManyToOne(targetEntity="Team")
      * @ORM\JoinColumn(name="away_team_id", referencedColumnName="id", nullable=false)
      */
     private $awayTeam;

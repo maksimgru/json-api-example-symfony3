@@ -5,15 +5,16 @@
         <div id="container">
             <div id="welcome">
                 <h1><span>Welcome to</span> Symfony {{ constant('Symfony\\Component\\HttpKernel\\Kernel::VERSION') }}</h1>
+                <h2>Competitions sorted by date</h2>
             </div>
 
             <div id="status">
                 {% for competition in competitions %}
-                    <span>{{ competition['start_at'] }}</span>
+                    <span>{{ competition.startAt | date('Y-m-d') }}</span>
                     <ul>
-                        <li>home team = {{ competition['home_team']['name'] }}</li>
-                        <li>score = {{ competition['score'] }}</li>
-                        <li>away team = {{ competition['away_team']['name'] }}</li>
+                        <li>home team = {{ competition.homeTeam.name }}</li>
+                        <li>score = {{ competition.score }}</li>
+                        <li>away team = {{ competition.awayTeam.name }}</li>
                     </ul>
                     <hr>
                 {% endfor %}

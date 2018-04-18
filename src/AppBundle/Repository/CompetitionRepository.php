@@ -12,5 +12,30 @@ use \Doctrine\ORM\EntityRepository;
  */
 class CompetitionRepository extends EntityRepository
 {
-    //public function getAllCompetitionsForTeam($team) {}
+    /**
+     * @param array $options
+     *
+     * @return mixed
+     */
+    public function findAllOrderedByDate(array $options = [])
+    {
+        $defaultOptions = [
+            'order' => 'DESC',
+            'limit' => null,
+        ];
+        $options = array_merge($defaultOptions, $options);
+
+        $dql = "SELECT c, htm, atm FROM AppBundle:Competition c
+            LEFT JOIN c.homeTeam htm
+            LEFT JOIN c.awayTeam atm
+            WHERE c.homeTeam = htm.id OR c.awayTeam = atm.id
+            ORDER BY c.startAt {$options['order']}";
+
+        $result = $this->getEntityManager()
+            ->createQuery($dql)
+            ->setMaxResults($options['limit'])
+            ->getResult();
+
+        return $result;
+    }
 }
