@@ -12,3 +12,6 @@ Run `composer install` in your root directory.
 ## Dev Server
 1. Run `php bin/console server:start` for start a dev server. Navigate to `http://localhost:8000`.
 2. Run `php bin/console server:stop` for stop a dev server.
+
+## Tests
+1. Run `./vendor/bin/simple-phpunit` from project root to run all phpunit tests.

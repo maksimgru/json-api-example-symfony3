@@ -32,7 +32,7 @@ class StandingsController extends Controller
 
         if (!$form->isSubmitted() || !$form->isValid()) {
             return $this->json([
-                'error' => 'Please, provide a valid date format like "Y-m-d"'
+                'error' => 'Please, provide a valid date format like Y-m-d'
             ], Response::HTTP_BAD_REQUEST);
         }
 

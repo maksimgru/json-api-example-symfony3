@@ -92,7 +92,7 @@ class SoccerWayService
             $result[$pair['key']] = $pair['value'];
         }
 
-        $result['Name'] = $rawData->filter('#subheading h1')->text();
+        $result['Name'] = $rawData->filter('#subheading h1')->getNode(0) ? $rawData->filter('#subheading h1')->text() : $url;
 
         return $result;
     }

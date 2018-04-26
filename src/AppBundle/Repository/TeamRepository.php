@@ -37,13 +37,13 @@ class TeamRepository extends EntityRepository
 
         // Extract Teams data into separate collection
         foreach ((array)$competitions as $competition) {
-            if (!array_key_exists($competition['homeTeam']['id'], $teamsIds)) {
+            if (!\in_array($competition['homeTeam']['id'], $teamsIds, true)) {
                 $teamsIds[] = $competition['homeTeam']['id'];
                 unset($competition['homeTeam']['id']);
                 $results[] = $competition['homeTeam'];
             }
 
-            if (!array_key_exists($competition['awayTeam']['id'], $teamsIds)) {
+            if (!\in_array($competition['awayTeam']['id'], $teamsIds, true)) {
                 $teamsIds[] = $competition['awayTeam']['id'];
                 unset($competition['awayTeam']['id']);
                 $results[] = $competition['awayTeam'];

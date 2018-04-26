@@ -1,6 +1,12 @@
 imports:
     - { resource: config_dev.yml }
 
+services:
+    _defaults:
+        public: true
+    test.AppBundle\Service\SoccerWayService: '@AppBundle\Service\SoccerWayService'
+    test.AppBundle\Service\DomCrawlerService: '@AppBundle\Service\DomCrawlerService'
+
 framework:
     test: ~
     session:
@@ -14,3 +20,9 @@ web_profiler:
 
 swiftmailer:
     disable_delivery: true
+
+doctrine:
+    dbal:
+        url: 'sqlite:///%kernel.project_dir%/var/data/test.sqlite'
+
+liip_functional_test: ~
