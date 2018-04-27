@@ -26,31 +26,28 @@ class StandingsControllerTest extends WebTestCase
         $this->client = $this->makeClient();
     }
 
-    public function testReturnValidJsonAndStatusCode()
+    /**
+     * @param string $dateFrom
+     * @param string $dateTo
+     *
+     * @dataProvider provideInputOutputData
+     */
+    public function testReturnValidJsonAndStatusCode(string $dateFrom, string $dateTo)
     {
-        // Without filter by date
-        $this->client->request('GET', '/api/standings');
+        $uri = $this->buildUri($dateFrom, $dateTo);
+        $this->client->request('GET', $uri);
         $response = $this->client->getResponse()->getContent();
-        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
-        $this->assertJson($response, 'Invalid Json!!!');
 
-        // With filter by date
-        $this->client->request('GET', '/api/standings?from=2012-04-28&to=2012-04-29');
-        $response = $this->client->getResponse()->getContent();
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
-        $this->assertJson($response, 'Invalid Json!!!');
-
-        // Error invalid date format
-        $this->client->request('GET', '/api/standings?from=2012:04:28');
-        $response = $this->client->getResponse()->getContent();
-        $this->assertEquals(400, $this->client->getResponse()->getStatusCode());
         $this->assertJson($response, 'Invalid Json!!!');
     }
 
-    public function testReturnJsonAsCollectionOfAllTeamsAndSortedByPlace()
+    public function testReturnJsonAsCollectionOfAllTeamsSortedByPlaceWithoutDateFilter()
     {
-        $this->client->request('GET', '/api/standings');
+        $uri = $this->buildUri();
+        $this->client->request('GET', $uri);
         $response = $this->client->getResponse()->getContent();
+
         $expectedJsonString = '
         [
             {"name":"FooTeam","place":1,"played":9,"wins":4,"draws":2,"losses":3,"points":20},
@@ -58,56 +55,105 @@ class StandingsControllerTest extends WebTestCase
             {"name":"DugTeam","place":3,"played":8,"wins":4,"draws":0,"losses":4,"points":22},
             {"name":"BugTeam","place":4,"played":9,"wins":4,"draws":2,"losses":3,"points":28}
         ]';
+
         $this->assertJsonStringEqualsJsonString($expectedJsonString, $response);
     }
 
-    public function testReturnJsonAsCollectionOfTeamsFilteredByCompetitionsDate()
+    /**
+     * @param string $dateFrom
+     * @param string $dateTo
+     * @param string $expectedJsonString
+     *
+     * @dataProvider provideInputOutputData
+     */
+    public function testReturnJsonAsCollectionOfTeamsFilteredByCompetitionsDate(string $dateFrom, string $dateTo, string $expectedJsonString)
     {
-        // Filter by date ?from=&to=
-        $this->client->request('GET', '/api/standings?from=2012-04-27&to=2012-04-28');
+        $uri = $this->buildUri($dateFrom, $dateTo);
+        $this->client->request('GET', $uri);
         $response = $this->client->getResponse()->getContent();
-        $expectedJsonString = '
-        [
-            {"name":"FooTeam","place":1,"played":9,"wins":4,"draws":2,"losses":3,"points":20},
-            {"name":"BarTeam","place":2,"played":7,"wins":3,"draws":1,"losses":3,"points":21}
-        ]';
-        $this->assertJsonStringEqualsJsonString($expectedJsonString, $response);
 
-        // Filter by date from=&to= (out of range)
-        $this->client->request('GET', '/api/standings?from=2012-04-01&to=2012-04-02');
-        $response = $this->client->getResponse()->getContent();
-        $expectedJsonString = '[]';
-        $this->assertJsonStringEqualsJsonString($expectedJsonString, $response);
-
-        // Filter by date ?from=
-        $this->client->request('GET', '/api/standings?from=2012-04-28');
-        $response = $this->client->getResponse()->getContent();
-        $expectedJsonString = '
-        [
-            {"name":"FooTeam","place":1,"played":9,"wins":4,"draws":2,"losses":3,"points":20},
-            {"name":"BarTeam","place":2,"played":7,"wins":3,"draws":1,"losses":3,"points":21},
-            {"name":"DugTeam","place":3,"played":8,"wins":4,"draws":0,"losses":4,"points":22},
-            {"name":"BugTeam","place":4,"played":9,"wins":4,"draws":2,"losses":3,"points":28}
-        ]';
-        $this->assertJsonStringEqualsJsonString($expectedJsonString, $response);
-
-        // Filter by date ?to=
-        $this->client->request('GET', '/api/standings?to=2012-04-28');
-        $response = $this->client->getResponse()->getContent();
-        $expectedJsonString = '
-        [
-            {"name":"FooTeam","place":1,"played":9,"wins":4,"draws":2,"losses":3,"points":20},
-            {"name":"BarTeam","place":2,"played":7,"wins":3,"draws":1,"losses":3,"points":21}
-        ]';
         $this->assertJsonStringEqualsJsonString($expectedJsonString, $response);
     }
 
     public function testReturnJsonWithErrorMessageInvalidDateFormat()
     {
-        $this->client->request('GET', '/api/standings?from=2012:04:28');
+        $uri = $this->buildUri('2012:04:28', '2012:04:29');
+        $this->client->request('GET', $uri);
         $response = $this->client->getResponse()->getContent();
         $expectedJsonString = '{"error":"Please, provide a valid date format like Y-m-d"}';
-        $this->assertJsonStringEqualsJsonString($expectedJsonString, $response, 'Don\'t match response json string');
+
+        $this->assertEquals(400, $this->client->getResponse()->getStatusCode());
+        $this->assertJson($response, 'Invalid Json!!!');
+        $this->assertJsonStringEqualsJsonString($expectedJsonString, $response);
         $this->assertObjectHasAttribute('error', json_decode($response), 'Not exists "error" property!!!');
+    }
+
+    public function provideInputOutputData(): array
+    {
+        return [
+            // dateFrom, dateTo, expectedJsonString
+            'from (empty) and to (empty)' => ['', '',
+                '[
+                    {"name":"FooTeam","place":1,"played":9,"wins":4,"draws":2,"losses":3,"points":20},
+                    {"name":"BarTeam","place":2,"played":7,"wins":3,"draws":1,"losses":3,"points":21},
+                    {"name":"DugTeam","place":3,"played":8,"wins":4,"draws":0,"losses":4,"points":22},
+                    {"name":"BugTeam","place":4,"played":9,"wins":4,"draws":2,"losses":3,"points":28}
+                ]'
+            ],
+            'from (in range) and to (in range)' => ['2012-04-28', '2012-04-29',
+                '[
+                    {"name":"FooTeam","place":1,"played":9,"wins":4,"draws":2,"losses":3,"points":20},
+                    {"name":"BarTeam","place":2,"played":7,"wins":3,"draws":1,"losses":3,"points":21},
+                    {"name":"DugTeam","place":3,"played":8,"wins":4,"draws":0,"losses":4,"points":22},
+                    {"name":"BugTeam","place":4,"played":9,"wins":4,"draws":2,"losses":3,"points":28}
+                ]'
+            ],
+            'from (out range) and to (in range)' => ['2012-04-27', '2012-04-28',
+                '[
+                    {"name":"FooTeam","place":1,"played":9,"wins":4,"draws":2,"losses":3,"points":20},
+                    {"name":"BarTeam","place":2,"played":7,"wins":3,"draws":1,"losses":3,"points":21}
+                ]'
+            ],
+            'from (in range) and to (empty)' => ['2012-04-28', '',
+                '[
+                    {"name":"FooTeam","place":1,"played":9,"wins":4,"draws":2,"losses":3,"points":20},
+                    {"name":"BarTeam","place":2,"played":7,"wins":3,"draws":1,"losses":3,"points":21},
+                    {"name":"DugTeam","place":3,"played":8,"wins":4,"draws":0,"losses":4,"points":22},
+                    {"name":"BugTeam","place":4,"played":9,"wins":4,"draws":2,"losses":3,"points":28}
+                ]'
+            ],
+            'from (empty) and to (in range)' => ['', '2012-04-28',
+                '[
+                    {"name":"FooTeam","place":1,"played":9,"wins":4,"draws":2,"losses":3,"points":20},
+                    {"name":"BarTeam","place":2,"played":7,"wins":3,"draws":1,"losses":3,"points":21}
+                ]'
+            ],
+            'from (out range) and to (out range)' => ['2010-04-01', '2010-04-02', '[]'],
+        ];
+    }
+
+    /**
+     * @param string $dateFrom
+     * @param string $dateTo
+     *
+     * @return string
+     */
+    private function buildUri($dateFrom = '', $dateTo = ''): string
+    {
+        $params = [];
+
+        if ('' !== $dateFrom) {
+            $params[] = "from=$dateFrom";
+        }
+
+        if ('' !== $dateTo) {
+            $params[] = "to=$dateTo";
+        }
+
+        $params = implode('&', $params);
+
+        $uri = "/api/standings?$params";
+
+        return $uri;
     }
 }
