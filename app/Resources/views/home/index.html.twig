@@ -17,7 +17,7 @@
                            {% endif %}
                            placeholder="Search by team name ..."
                     >
-                    <button type="submit" class="btn btn-primary">Search</button>
+                    <button type="submit" id="search-submit" class="btn btn-primary">Search</button>
                 </form>
 
                 <table class="table table-bordered table-striped">
@@ -30,14 +30,20 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for competition in competitions %}
+                        {% if competitions %}
+                            {% for competition in competitions %}
+                                <tr>
+                                    <td>{{ competition.startAt | date('Y-m-d') }}</td>
+                                    <td>{{ competition.homeTeam.name }}</td>
+                                    <td>{{ competition.score }}</td>
+                                    <td>{{ competition.awayTeam.name }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
                             <tr>
-                                <td>{{ competition.startAt | date('Y-m-d') }}</td>
-                                <td>{{ competition.homeTeam.name }}</td>
-                                <td>{{ competition.score }}</td>
-                                <td>{{ competition.awayTeam.name }}</td>
+                                <td colspan="4" class="text-center alert alert-info">No competitions found!!!</td>
                             </tr>
-                        {% endfor %}
+                        {% endif %}
                     </tbody>
                 </table>
             </div>

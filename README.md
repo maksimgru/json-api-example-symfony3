@@ -15,3 +15,4 @@ Run `composer install` in your root directory.
 
 ## Tests
 1. Run `./vendor/bin/simple-phpunit` from project root to run all phpunit tests.
+2. Run `./vendor/bin/behat` from project root to run all behat suite tests.
